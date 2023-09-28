@@ -1,7 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import auth from "../../firebase/firebase.config";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link } from "react-router-dom";
 
 
 const Register = () => {
@@ -11,6 +12,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const handleRegister =(e)=>{
     e.preventDefault();
+    const name = e.target.name.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
     const termsAccept = e.target.terms_conditions.checked;
@@ -23,14 +25,31 @@ const Register = () => {
       return;
 
     }
-    // console.log(email, password);
+    console.log(name,email, password);
     setErrorRegister('');
     setSuccessRegister('');
     createUserWithEmailAndPassword(auth,email,password)
-    .then((userCredential) => {
-      console.log(userCredential);
+    .then((result) => {
+      // console.log(result.user);
+      setSuccessRegister("User Created Successfully.");
+
+      updateProfile(result.user,{
+        displayName:name,
+
+      })
+      .then(()=>{
+        console.log('profile updated');
+      })
+      .catch((error)=>{
+        console.log(error);
+      })     
       
-     setSuccessRegister("User Created Successfully.")
+     
+     sendEmailVerification(result.user)
+      .then(() => {
+        alert('please check your email and verify your account!')
+
+  });
       
     })
     .catch((error) => {
@@ -46,6 +65,12 @@ const Register = () => {
   <div className="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
     <div className="card-body">
       <form onSubmit={handleRegister}>
+      <div className="form-control">
+        <label className="label">
+          <span className="label-text">Name</span>
+        </label>
+        <input type="text" name="name" placeholder="name" className="input input-bordered" required />
+      </div>
       <div className="form-control">
         <label className="label">
           <span className="label-text">Email</span>
@@ -79,6 +104,7 @@ const Register = () => {
       {
         successRegister && <p className="text-2xl text-green-600 font-bold">{successRegister}</p>
       }
+      <p>Already have an account? Please  <Link className="text-blue-500 text-xl font-bold" to='/login'>Log In</Link></p>
     </div>
   </div>
 </div>

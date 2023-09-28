@@ -1,9 +1,11 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import auth from "../../firebase/firebase.config";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 
 const Login = () => {
+  const emailRef = useRef(null)
   const [errorLogin, setErrorLogin] = useState('');
   const [successLogin, setSuccessLogin] = useState('');
   // const [showPassword, setShowPassword] = useState(false);
@@ -12,22 +14,51 @@ const Login = () => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-    console.log(email, password);
+    // console.log(email, password);
+    setErrorLogin('');
+    setSuccessLogin('');
     // if (password.length < 6) {
     //   setErrorLogin("Password at least 6 character or more!");
     //   return;
       
     // }
     signInWithEmailAndPassword(auth,email,password)
-    .then((userCredential) => {
-      console.log(userCredential);
-      setSuccessLogin("User Created Successfully.");
-      // const user = userCredential.user;
+    .then((result) => {
+      // console.log(result.user);
+      if(result.user.emailVerified){
+        setSuccessLogin("User Created Successfully.");
+       }else{
+        alert('please verify your email address!')
+       }
       
     })
     .catch((error) => {
       setErrorLogin(error.message);
     });
+  }
+
+
+  const handleForgetPassword=()=>{
+    const email = emailRef.current.value;
+    if (!email) {
+      console.log(email);
+      return;
+      
+    }else if(!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email) ){
+      console.log('please write a valid email! ');
+      return;
+    }
+
+    sendPasswordResetEmail(auth, email)
+  .then(() => {
+     console.log("please check your email!");
+  })
+  .catch((error) => {
+    console.log(error);
+    // ..
+  });
+
+
   }
   return (
     <div>
@@ -42,15 +73,15 @@ const Login = () => {
           <label className="label">
             <span className="label-text">Email</span>
           </label>
-          <input type="text" name="email" placeholder="email" className="input input-bordered" />
+          <input ref={emailRef} type="text" name="email" placeholder="email" className="input input-bordered" required />
         </div>
         <div className="form-control">
           <label className="label">
             <span className="label-text">Password</span>
           </label>
-          <input type="text" name="password" placeholder="password" className="input input-bordered" />
+          <input type="text" name="password" placeholder="password" className="input input-bordered" required />
           <label className="label">
-            <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
+            <a onClick={handleForgetPassword} href="#" className="label-text-alt link link-hover">Forgot password?</a>
           </label>
         </div>
         <div className="form-control mt-6">
@@ -63,6 +94,7 @@ const Login = () => {
        {
         successLogin && <p className="text-2xl text-green-600 font-bold">{successLogin}</p>
       }
+      <p>Do not have account? Please <Link className="text-blue-500 text-xl font-bold" to='/register'>Register</Link></p>
       </div>
     </div>
   </div>

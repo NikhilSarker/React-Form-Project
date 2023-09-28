@@ -13,10 +13,15 @@ const Register = () => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
+    const termsAccept = e.target.terms_conditions.checked;
     if (password.length < 6) {
       setErrorRegister("Password at least 6 character or more!");
       return;
       
+    }else if(!termsAccept){
+      setErrorRegister("Please accept our terms and conditions!");
+      return;
+
     }
     // console.log(email, password);
     setErrorRegister('');
@@ -60,8 +65,8 @@ const Register = () => {
         </span>
         </div>
         <label className="label mt-5">
-         <input type="checkbox" name="terms&conditions" id="terms&conditions" />
-         <label htmlFor="terms&conditions" className=" ml-3 text-base font-semibold">Accept Our <a className="text-blue-500" href="#">Terms And Conditions!</a></label>
+         <input type="checkbox" name="terms_conditions" id="terms_conditions" />
+         <label htmlFor="terms_conditions" className=" ml-3 text-base font-semibold">Accept Our <a className="text-blue-500" href="#">Terms And Conditions!</a></label>
         </label>
       </div>
       <div className="form-control mt-6">

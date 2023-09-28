@@ -1,12 +1,33 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
+import auth from "../../firebase/firebase.config";
+import { useState } from "react";
 
 
 const Login = () => {
+  const [errorLogin, setErrorLogin] = useState('');
+  const [successLogin, setSuccessLogin] = useState('');
+  // const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin =(e)=>{
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
     console.log(email, password);
+    // if (password.length < 6) {
+    //   setErrorLogin("Password at least 6 character or more!");
+    //   return;
+      
+    // }
+    signInWithEmailAndPassword(auth,email,password)
+    .then((userCredential) => {
+      console.log(userCredential);
+      setSuccessLogin("User Created Successfully.");
+      // const user = userCredential.user;
+      
+    })
+    .catch((error) => {
+      setErrorLogin(error.message);
+    });
   }
   return (
     <div>
@@ -36,6 +57,12 @@ const Login = () => {
           <input className="btn btn-primary" type="submit" value='Login'/>
         </div>
         </form>
+        {
+        errorLogin && <p className="text-2xl text-red-600 font-bold">{errorLogin}</p>
+      }
+       {
+        successLogin && <p className="text-2xl text-green-600 font-bold">{successLogin}</p>
+      }
       </div>
     </div>
   </div>
